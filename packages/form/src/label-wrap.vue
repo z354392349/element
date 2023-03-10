@@ -1,34 +1,37 @@
 <script>
-
 export default {
   props: {
     isAutoWidth: Boolean,
-    updateAll: Boolean
+    updateAll: Boolean,
   },
 
-  inject: ['elForm', 'elFormItem'],
+  inject: ["elForm", "elFormItem"],
 
   render() {
+    debugger;
     const slots = this.$slots.default;
     if (!slots) return null;
     if (this.isAutoWidth) {
       const autoLabelWidth = this.elForm.autoLabelWidth;
       const style = {};
-      if (autoLabelWidth && autoLabelWidth !== 'auto') {
+      if (autoLabelWidth && autoLabelWidth !== "auto") {
         const marginLeft = parseInt(autoLabelWidth, 10) - this.computedWidth;
         if (marginLeft) {
-          style.marginLeft = marginLeft + 'px';
+          style.marginLeft = marginLeft + "px";
         }
       }
-      return (<div class="el-form-item__label-wrap" style={style}>
-        { slots }
-      </div>);
+      return (
+        <div class="el-form-item__label-wrap" style={style}>
+          {slots}
+        </div>
+      );
     } else {
       return slots[0];
     }
   },
 
   methods: {
+    // 获取 el-form-item__label-wrap 的宽度。
     getLabelWidth() {
       if (this.$el && this.$el.firstElementChild) {
         const computedWidth = window.getComputedStyle(this.$el.firstElementChild).width;
@@ -37,15 +40,18 @@ export default {
         return 0;
       }
     },
-    updateLabelWidth(action = 'update') {
+
+    // 只有在 isAutoWidth 为 true 时才会调用，也就是el-from的 lable-width 为 auto 时才会调用.
+    // firstElementChild指的是 el-form-item__label-wrap，如果 isAUTOWidth 为false，el-form-item__label-wrap 也不会不存在
+    updateLabelWidth(action = "update") {
       if (this.$slots.default && this.isAutoWidth && this.$el.firstElementChild) {
-        if (action === 'update') {
+        if (action === "update") {
           this.computedWidth = this.getLabelWidth();
-        } else if (action === 'remove') {
+        } else if (action === "remove") {
           this.elForm.deregisterLabelWidth(this.computedWidth);
         }
       }
-    }
+    },
   },
 
   watch: {
@@ -54,25 +60,25 @@ export default {
         this.elForm.registerLabelWidth(val, oldVal);
         this.elFormItem.updateComputedLabelWidth(val);
       }
-    }
+    },
   },
 
   data() {
     return {
-      computedWidth: 0
+      computedWidth: 0,
     };
   },
 
   mounted() {
-    this.updateLabelWidth('update');
+    this.updateLabelWidth("update");
   },
 
   updated() {
-    this.updateLabelWidth('update');
+    this.updateLabelWidth("update");
   },
 
   beforeDestroy() {
-    this.updateLabelWidth('remove');
-  }
+    this.updateLabelWidth("remove");
+  },
 };
 </script>
