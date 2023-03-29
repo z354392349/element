@@ -8,9 +8,9 @@
         'is-validating': validateState === 'validating',
         'is-success': validateState === 'success',
         'is-required': isRequired || required,
-        'is-no-asterisk': elForm && elForm.hideRequiredAsterisk,
+        'is-no-asterisk': elForm && elForm.hideRequiredAsterisk
       },
-      sizeClass ? 'el-form-item--' + sizeClass : '',
+      sizeClass ? 'el-form-item--' + sizeClass : ''
     ]"
   >
     <label-wrap :is-auto-width="labelStyle && labelStyle.width === 'auto'" :update-all="form.labelWidth === 'auto'">
@@ -25,7 +25,7 @@
           <div
             class="el-form-item__error"
             :class="{
-              'el-form-item__error--inline': typeof inlineMessage === 'boolean' ? inlineMessage : (elForm && elForm.inlineMessage) || false,
+              'el-form-item__error--inline': typeof inlineMessage === 'boolean' ? inlineMessage : (elForm && elForm.inlineMessage) || false
             }"
           >
             {{ validateMessage }}
@@ -36,63 +36,64 @@
   </div>
 </template>
 <script>
-import AsyncValidator from "async-validator";
-import emitter from "element-ui/src/mixins/emitter";
-import objectAssign from "element-ui/src/utils/merge";
-import { noop, getPropByPath } from "element-ui/src/utils/util";
-import LabelWrap from "./label-wrap";
+import AsyncValidator from 'async-validator';
+import emitter from 'element-ui/src/mixins/emitter';
+import objectAssign from 'element-ui/src/utils/merge';
+import { noop, getPropByPath } from 'element-ui/src/utils/util';
+import LabelWrap from './label-wrap';
 export default {
-  name: "ElFormItem",
+  name: 'ElFormItem',
 
-  componentName: "ElFormItem",
+  componentName: 'ElFormItem',
 
   mixins: [emitter],
 
   provide() {
     return {
-      elFormItem: this,
+      elFormItem: this
     };
   },
 
-  inject: ["elForm"],
+  inject: ['elForm'],
 
   props: {
     label: String,
     labelWidth: String,
     prop: String,
+    // 当前是否为必填项
     required: {
       type: Boolean,
-      default: undefined,
+      default: undefined
     },
-    rules: [Object, Array],
+    rules: [Object, Array], // 自身的校验规则
     error: String,
     validateStatus: String,
-    for: String,
+    for: String, //  label 上for 属性的值
     inlineMessage: {
       type: [String, Boolean],
-      default: "",
+      default: ''
     },
     showMessage: {
       type: Boolean,
-      default: true,
+      default: true
     },
-    size: String,
+    size: String
   },
   components: {
     // use this component to calculate auto width
-    LabelWrap,
+    LabelWrap
   },
   watch: {
     error: {
       immediate: true,
       handler(value) {
         this.validateMessage = value;
-        this.validateState = value ? "error" : "";
-      },
+        this.validateState = value ? 'error' : '';
+      }
     },
     validateStatus(value) {
       this.validateState = value;
-    },
+    }
   },
   computed: {
     labelFor() {
@@ -100,7 +101,7 @@ export default {
     },
     labelStyle() {
       const ret = {};
-      if (this.form.labelPosition === "top") return ret;
+      if (this.form.labelPosition === 'top') return ret;
       const labelWidth = this.labelWidth || this.form.labelWidth;
       if (labelWidth) {
         ret.width = labelWidth;
@@ -110,13 +111,13 @@ export default {
     contentStyle() {
       const ret = {};
       const label = this.label;
-      if (this.form.labelPosition === "top" || this.form.inline) return ret;
+      if (this.form.labelPosition === 'top' || this.form.inline) return ret;
       if (!label && !this.labelWidth && this.isNested) return ret;
       const labelWidth = this.labelWidth || this.form.labelWidth;
-      if (labelWidth === "auto") {
-        if (this.labelWidth === "auto") {
+      if (labelWidth === 'auto') {
+        if (this.labelWidth === 'auto') {
           ret.marginLeft = this.computedLabelWidth;
-        } else if (this.form.labelWidth === "auto") {
+        } else if (this.form.labelWidth === 'auto') {
           ret.marginLeft = this.elForm.autoLabelWidth;
         }
       } else {
@@ -127,8 +128,8 @@ export default {
     form() {
       let parent = this.$parent;
       let parentName = parent.$options.componentName;
-      while (parentName !== "ElForm") {
-        if (parentName === "ElFormItem") {
+      while (parentName !== 'ElForm') {
+        if (parentName === 'ElFormItem') {
           this.isNested = true;
         }
         parent = parent.$parent;
@@ -143,8 +144,8 @@ export default {
       }
 
       let path = this.prop;
-      if (path.indexOf(":") !== -1) {
-        path = path.replace(/:/, ".");
+      if (path.indexOf(':') !== -1) {
+        path = path.replace(/:/, '.');
       }
 
       return getPropByPath(model, path, true).v;
@@ -154,7 +155,7 @@ export default {
       let isRequired = false;
 
       if (rules && rules.length) {
-        rules.every((rule) => {
+        rules.every(rule => {
           if (rule.required) {
             isRequired = true;
             return false;
@@ -172,32 +173,33 @@ export default {
     },
     sizeClass() {
       return this.elFormItemSize || (this.$ELEMENT || {}).size;
-    },
+    }
   },
   data() {
     return {
-      validateState: "",
-      validateMessage: "",
+      validateState: '',
+      validateMessage: '',
       validateDisabled: false,
       validator: {},
-      isNested: false,
-      computedLabelWidth: "",
+      isNested: false, // 判断是否为嵌套
+      computedLabelWidth: ''
     };
   },
   methods: {
     validate(trigger, callback = noop) {
       this.validateDisabled = false;
+      // TODO: 拆解到这里
       const rules = this.getFilteredRule(trigger);
       if ((!rules || rules.length === 0) && this.required === undefined) {
         callback();
         return true;
       }
 
-      this.validateState = "validating";
+      this.validateState = 'validating';
 
       const descriptor = {};
       if (rules && rules.length > 0) {
-        rules.forEach((rule) => {
+        rules.forEach(rule => {
           delete rule.trigger;
         });
       }
@@ -209,27 +211,27 @@ export default {
       model[this.prop] = this.fieldValue;
 
       validator.validate(model, { firstFields: true }, (errors, invalidFields) => {
-        this.validateState = !errors ? "success" : "error";
-        this.validateMessage = errors ? errors[0].message : "";
+        this.validateState = !errors ? 'success' : 'error';
+        this.validateMessage = errors ? errors[0].message : '';
 
         callback(this.validateMessage, invalidFields);
-        this.elForm && this.elForm.$emit("validate", this.prop, !errors, this.validateMessage || null);
+        this.elForm && this.elForm.$emit('validate', this.prop, !errors, this.validateMessage || null);
       });
     },
     clearValidate() {
-      this.validateState = "";
-      this.validateMessage = "";
+      this.validateState = '';
+      this.validateMessage = '';
       this.validateDisabled = false;
     },
     resetField() {
-      this.validateState = "";
-      this.validateMessage = "";
+      this.validateState = '';
+      this.validateMessage = '';
 
       let model = this.form.model;
       let value = this.fieldValue;
       let path = this.prop;
-      if (path.indexOf(":") !== -1) {
-        path = path.replace(/:/, ".");
+      if (path.indexOf(':') !== -1) {
+        path = path.replace(/:/, '.');
       }
 
       let prop = getPropByPath(model, path, true);
@@ -246,75 +248,82 @@ export default {
         this.validateDisabled = false;
       });
 
-      this.broadcast("ElTimeSelect", "fieldReset", this.initialValue);
+      this.broadcast('ElTimeSelect', 'fieldReset', this.initialValue);
     },
+
+    // 获取并且汇总当前的校验规则
     getRules() {
       let formRules = this.form.rules;
       const selfRules = this.rules;
       const requiredRule = this.required !== undefined ? { required: !!this.required } : [];
 
-      const prop = getPropByPath(formRules, this.prop || "");
-      formRules = formRules ? prop.o[this.prop || ""] || prop.v : [];
+      const prop = getPropByPath(formRules, this.prop || '');
+      formRules = formRules ? prop.o[this.prop || ''] || prop.v : [];
 
       return [].concat(selfRules || formRules || []).concat(requiredRule);
     },
-    getFilteredRule(trigger) {
-      const rules = this.getRules();
 
+    // 获取到指定的校验规则
+    getFilteredRule(trigger) {
+      const rules = this.getRules(); // 获取到校验规则
+      debugger;
       return rules
-        .filter((rule) => {
-          if (!rule.trigger || trigger === "") return true;
+        .filter(rule => {
+          if (!rule.trigger || trigger === '') return true;
           if (Array.isArray(rule.trigger)) {
             return rule.trigger.indexOf(trigger) > -1;
           } else {
             return rule.trigger === trigger;
           }
         })
-        .map((rule) => objectAssign({}, rule));
+        .map(rule => objectAssign({}, rule));
     },
+
     onFieldBlur() {
-      this.validate("blur");
+      this.validate('blur');
     },
+
     onFieldChange() {
       if (this.validateDisabled) {
         this.validateDisabled = false;
         return;
       }
 
-      this.validate("change");
+      this.validate('change');
     },
     updateComputedLabelWidth(width) {
-      this.computedLabelWidth = width ? `${width}px` : "";
+      this.computedLabelWidth = width ? `${width}px` : '';
     },
     addValidateEvents() {
-      const rules = this.getRules();
+      const rules = this.getRules(); // 获取到最终的规则
 
       if (rules.length || this.required !== undefined) {
-        this.$on("el.form.blur", this.onFieldBlur);
-        this.$on("el.form.change", this.onFieldChange);
+        this.$on('el.form.blur', this.onFieldBlur); // 从 input 派发上来的事件
+        this.$on('el.form.change', this.onFieldChange); // 从input 派发上来的事件
       }
     },
     removeValidateEvents() {
       this.$off();
-    },
+    }
   },
   mounted() {
     if (this.prop) {
-      this.dispatch("ElForm", "el.form.addField", [this]);
+      this.dispatch('ElForm', 'el.form.addField', [this]); // 派发事件找到的，elFrom 添加自身，因为派发通过apply 调用的所以使用【this】。
 
+      // 不太理解为什么，使用defineProperty，不直接写到data里面，难道是怕不小心错误赋值么？
       let initialValue = this.fieldValue;
       if (Array.isArray(initialValue)) {
         initialValue = [].concat(initialValue);
       }
-      Object.defineProperty(this, "initialValue", {
-        value: initialValue,
+      Object.defineProperty(this, 'initialValue', {
+        value: initialValue
       });
 
       this.addValidateEvents();
     }
   },
   beforeDestroy() {
-    this.dispatch("ElForm", "el.form.removeField", [this]);
-  },
+    this.dispatch('ElForm', 'el.form.removeField', [this]); // 派发事件找到的，elFrom 注销自身。
+  }
 };
 </script>
